@@ -3,8 +3,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-dotenv.config();
+
 
 
 
