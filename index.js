@@ -29,7 +29,11 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-
+app.use('/', (req,res,next)=>{
+  res.status(200).json({
+    message: 'welcome to krizo backend'
+  });
+});
 app.use('/users', usersRoutes);
 app.use('/customers', customerRoutes);
 
