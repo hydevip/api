@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-dotenv.config();
+
 
 exports.users_post_register = (req, res, next) => {
   User.find({ username: req.body.username })
@@ -44,7 +43,7 @@ exports.users_post_register = (req, res, next) => {
         }
         );
 
-        
+
       }
     });
 };
