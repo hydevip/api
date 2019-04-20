@@ -30,8 +30,9 @@ app.use(bodyParser.json());
 
 app.use('/', (req,res,next)=>{
   res.status(200).json({
-    message: 'welcome to krizo backend'
+    message: 'welcome to krizo backend'    
   });
+  next();
 });
 app.use('/users', usersRoutes);
 app.use('/customers', customerRoutes);
