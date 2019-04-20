@@ -1,5 +1,10 @@
 {
   "main": "index.js",
+
+  "scripts": {
+    "start":"Node index.js"
+  },
+
   "dependencies": {
     "bcrypt": "3.0.6",
     "body-parser": "1.18.3",
