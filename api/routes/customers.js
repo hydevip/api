@@ -7,7 +7,7 @@ router.get('/', checkLogin , CustomersController.customers_get_all);
 
 router.post('/', checkLogin, CustomersController.customers_create_customer);
 
-router.get('/:customerId', checkLogin, CustomersController.customers_get_customerById);
+router.get('/:customerName', checkLogin, CustomersController.customers_get_customerByName);
 
 router.delete('/:customerId', checkLogin, CustomersController.customer_delete_customerById );
 

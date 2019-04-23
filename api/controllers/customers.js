@@ -44,9 +44,9 @@ exports.customers_create_customer = (req, res, next) => {
 
 
 
-exports.customers_get_customerById = (req, res, next) => {
-  const id = req.params.customerId;
-  Customer.findById(id)
+exports.customers_get_customerByName = (req, res, next) => {
+  let nameStr = req.params.customerName;
+  Customer.find({name: {$regex: nameStr}})
     .select('name email phone')
     .exec()
     .then(cust => {
@@ -55,7 +55,7 @@ exports.customers_get_customerById = (req, res, next) => {
         res.status(200).json(cust);
       }
       else {
-        res.status(404).json({ message: 'no valid entry for the provided Id' });
+        res.status(404).json({ message: 'There is no customer name to contain' + req.params.customerName });
       }
 
     })
