@@ -46,7 +46,7 @@ exports.customers_create_customer = (req, res, next) => {
 
 exports.customers_get_customerByName = (req, res, next) => {
   let nameStr = req.params.customerName;
-  Customer.find({name: {$regex: nameStr}})
+  Customer.find({name: {$regex: /.*nameStr.*/}})
     .select('name email phone')
     .exec()
     .then(cust => {
