@@ -19,7 +19,8 @@ const customerRoutes = require('./api/routes/customers');
 
 mongoose.set('useCreateIndex', true);
 
-mongoose.connect('mongodb+srv://restdbUsername:' + process.env.DB_PASS + '@cluster0-fnckg.mongodb.net/test?retryWrites=true', { useNewUrlParser: true });
+mongoose.connect('mongodb+srv://restdbUsername:' + process.env.DB_PASS + '@cluster0-fnckg.mongodb.net/test?retryWrites=true', { useNewUrlParser: true })
+ .then(()=>console.log('Database connected')).catch(error=>console.log(error));
 
 
 app.use(morgan('dev'));
