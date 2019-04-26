@@ -1,6 +1,6 @@
 const Customer = require('../models/customer');
 const mongoose = require('mongoose');
-
+//Though this api will technically work, too much boilerplate for my taste. Can you shorten it by using functions (as in the CLI)?
 exports.customers_get_all = (req, res, next) => {
   Customer.find()
     .select('name email phone')
