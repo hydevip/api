@@ -9,24 +9,12 @@ exports.customers_get_all = (req, res, next) => {
       console.log(customers);
       res.status(200).json(customers);
     })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ error: err });
-    });
-
+    .catch(err=>handleError(res,err));
 };
 
 
 exports.customers_create_customer = (req, res, next) => {
-
-  const customer = new Customer({
-    _id: new mongoose.Types.ObjectId(),
-    name: req.body.name,
-    email: req.body.email,
-    phone: req.body.phone
-  });
-
-  customer.save()
+  getCustomerFromRequest(req).save()
     .then(result => {
       console.log(result);
 
@@ -35,34 +23,16 @@ exports.customers_create_customer = (req, res, next) => {
         createdCustomer: result
       });
     })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ error: err });
-    });
-
+    .catch(err=>handleError(res,err));
 };
-
-
 
 exports.customers_get_customerByName = (req, res, next) => {
   let nameStr = req.params.customerName;
   Customer.find({ name: { $regex: '.*'+ nameStr +'.*' } })
     .select('name email phone')
     .exec()
-    .then(cust => {
-      console.log(cust);
-      if (cust) {
-        res.status(200).json(cust);
-      }
-      else {
-        res.status(404).json({ message: 'There is no customer name to contain' + req.params.customerName });
-      }
-
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ error: err });
-    });
+    .then(handleGetCustByNameFromDb(res, req))
+    .catch(err=>handleError(res,err));
 };
 
 exports.customer_delete_customerById = (req, res, next) => {
@@ -71,13 +41,8 @@ exports.customer_delete_customerById = (req, res, next) => {
     .then(result => {
       res.status(200).json(result);
     })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ error: err });
-    });
-
+    .catch(err=>handleError(res,err));
 };
-
 
 
 exports.customers_update_customerById = (req, res, next) => {
@@ -92,9 +57,33 @@ exports.customers_update_customerById = (req, res, next) => {
       console.log(result);
       res.status(200).json(result);
     })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ error: err });
-    });
-
+    .catch(err=>handleError(res,err));
 };
+
+function getCustomerFromRequest(req) {
+  return new Customer({
+    _id: new mongoose.Types.ObjectId(),
+    name: req.body.name,
+    email: req.body.email,
+    phone: req.body.phone
+  });
+}
+
+function handleGetCustByNameFromDb(res, req) {
+  return cust => {
+    console.log(cust);
+    if (cust) {
+      res.status(200).json(cust);
+    }
+    else {
+      res.status(404).json({ message: 'There is no customer name to contain' + req.params.customerName });
+    }
+  };
+}
+
+function handleError(res,err) {
+  //return err => {
+    console.log(err);
+    res.status(500).json({ error: err });
+  //};
+}
