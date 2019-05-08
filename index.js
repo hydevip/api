@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const { dbConnect } = require('../dbService');
 
 
 
@@ -16,7 +17,7 @@ const customerRoutes = require('./api/routes/customers');
 
 mongoose.set('useCreateIndex', true);
 
-mongoose.connect('mongodb+srv://restdbUsername:' + process.env.DB_PASS + '@cluster0-fnckg.mongodb.net/test?retryWrites=true', { useNewUrlParser: true })
+dbConnect()
  .then(()=>console.log('Database connected')).catch(error=>console.log(error));
 
 

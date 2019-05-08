@@ -1,5 +1,5 @@
-const Customer = require('../models/customer');
-const mongoose = require('mongoose');
+const { dbFindAllCustomers, dbFindCustomerByName, dbRemoveCustomerById, dbUpdateCustomerById, dbCreatedNewCustomer } = require('../dbService');
+const { handleError } = require('../errHandling');
 //Though this api will technically work, too much boilerplate for my taste. Can you shorten it by using functions (as in the CLI)?
 //Mikkel:ok there's a slight problem with how you, from a code reuse point of view, are structuring this.
 //imagine that other parts of the project are using the functions, how can you call it?
@@ -11,22 +11,18 @@ const mongoose = require('mongoose');
 //your web context. These functions will not receive a req or response, in fact they dont even know the are in a web api, but will only receive
 //and return values that are relevant for their task.
 //the trick is to isolate things that have nothing to do with each other..both for clarity but also to make the code much more easy to maintain in the future.
+
 exports.customers_get_all = (req, res, next) => {
-  Customer.find()
-    .select('name email phone')
-    .exec()
+  dbFindAllCustomers()
     .then(customers => {
       console.log(customers);
       res.status(200).json(customers);
     })
-    .catch(err=>handleError(res,err));//Mikkel: a step in the right direction, bravo!!
+    .catch(err => handleError(res, err));//Mikkel: a step in the right direction, bravo!!
 };
 
-
-
-
 exports.customers_create_customer = (req, res, next) => {
-  getCustomerFromRequest(req).save()
+  createCustomerInDbFromRequest(req)
     .then(result => {
       console.log(result);
 
@@ -35,25 +31,23 @@ exports.customers_create_customer = (req, res, next) => {
         createdCustomer: result
       });
     })
-    .catch(err=>handleError(res,err));
+    .catch(err => handleError(res, err));
 };
 
 exports.customers_get_customerByName = (req, res, next) => {
   let nameStr = req.params.customerName;
-  Customer.find({ name: { $regex: '.*'+ nameStr +'.*' } })
-    .select('name email phone')
-    .exec()
+  dbFindCustomerByName(nameStr)
     .then(handleGetCustByNameFromDb(res, req))
-    .catch(err=>handleError(res,err));
+    .catch(err => handleError(res, err));
 };
 
 exports.customer_delete_customerById = (req, res, next) => {
   const id = req.params.customerId;
-  Customer.remove({ _id: id }).exec()
+  dbRemoveCustomerById(id)
     .then(result => {
       res.status(200).json(result);
     })
-    .catch(err=>handleError(res,err));
+    .catch(err => handleError(res, err));
 };
 
 
@@ -64,22 +58,17 @@ exports.customers_update_customerById = (req, res, next) => {
     updateOps[ops.propName] = ops.value;
   }
 
-  Customer.update({ _id: id }, { $set: updateOps })
+  dbUpdateCustomerById(id, updateOps)
     .then(result => {
       console.log(result);
       res.status(200).json(result);
     })
-    .catch(err=>handleError(res,err));
+    .catch(err => handleError(res, err));
 };
 
 //good!!
-function getCustomerFromRequest(req) {
-  return new Customer({
-    _id: new mongoose.Types.ObjectId(),
-    name: req.body.name,
-    email: req.body.email,
-    phone: req.body.phone
-  });
+function createCustomerInDbFromRequest(req) {
+  return dbCreatedNewCustomer(req.body.name, req.body.email, req.body.phone);
 }
 
 function handleGetCustByNameFromDb(res, req) {
@@ -92,12 +81,4 @@ function handleGetCustByNameFromDb(res, req) {
       res.status(404).json({ message: 'There is no customer name to contain' + req.params.customerName });
     }
   };
-}
-
-//Mikkel: good
-function handleError(res,err) {
-  //return err => {
-    console.log(err);
-    res.status(500).json({ error: err });
-  //};
 }

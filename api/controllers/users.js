@@ -1,12 +1,11 @@
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const { handleError } = require('../errHandling');
+const { dbFindByUsername, createUserByUsernameAndHash } = require('../dbService');
 
 
 exports.users_post_register = (req, res, next) => {
-  User.find({ username: req.body.username })
-    .exec()
+  dbFindByUsername( req.body.username)
     .then(user => {
       if (user.length >= 1) {
         return res.status(409).json({
@@ -19,8 +18,7 @@ exports.users_post_register = (req, res, next) => {
 };
 
 exports.users_post_login = (req, res, next) => {
-  User.find({ username: req.body.username })
-    .exec()
+  dbFindByUsername( req.body.username)
     .then(user => {
       if (user.length < 1) {
         return res.status(401).json({
@@ -29,26 +27,18 @@ exports.users_post_login = (req, res, next) => {
       }
       handleUserLogin(req, user, res);
     })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ error: err });
-    });
-
+    .catch(err => handleError(res, err));
 };
 
 
 exports.users_delete_userById =  (req, res, next) => {
-  const id = req.params.userId;
-  User.remove({ _id: id }).exec()
+  dbRemoveUserById(req.params.userId)
     .then(result => {
       res.status(200).json({
         message: 'User deleted'
       });
     })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ error: err });
-    });
+    .catch(err => handleError(res, err));
 
 };
 
@@ -60,25 +50,18 @@ function handleUserRegister(req, res) {
       });
     }
     else {
-      const user = new User({
-        _id: new mongoose.Types.ObjectId(),
-        username: req.body.username,
-        password: hash
-      });
-      user.save()
+      createUserByUsernameAndHash(req, hash)
         .then(result => {
           console.log(result);
           res.status(201).json({
             message: 'User Created!'
           });
         })
-        .catch(err => {
-          console.log(err);
-          res.status(500).json({ error: err });
-        });
+        .catch(err => handleError(res, err));
     }
   });
 }
+
 
 function handleUserLogin(req, user, res) {
   bcrypt.compare(req.body.password, user[0].password, (err, result) => {
