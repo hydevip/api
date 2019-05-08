@@ -1,6 +1,16 @@
 const Customer = require('../models/customer');
 const mongoose = require('mongoose');
 //Though this api will technically work, too much boilerplate for my taste. Can you shorten it by using functions (as in the CLI)?
+//Mikkel:ok there's a slight problem with how you, from a code reuse point of view, are structuring this.
+//imagine that other parts of the project are using the functions, how can you call it?
+//you functions and queries are all tangled together, they expect a req and a resp, but you need to use them
+// in some other context where there is neither  request or response available, how will you use them ?
+//you would have no choice but to type your customer.find().select().exec().once again, which is a mess and could be a problem if
+//the query for some reason needs to be changed..you would have to do it everywhere!
+//I propose that you make a new file "api" or something like that, put your functions, "customers get all etc" there, and call them from the
+//your web context. These functions will not receive a req or response, in fact they dont even know the are in a web api, but will only receive
+//and return values that are relevant for their task.
+//the trick is to isolate things that have nothing to do with each other..both for clarity but also to make the code much more easy to maintain in the future.
 exports.customers_get_all = (req, res, next) => {
   Customer.find()
     .select('name email phone')
@@ -9,8 +19,10 @@ exports.customers_get_all = (req, res, next) => {
       console.log(customers);
       res.status(200).json(customers);
     })
-    .catch(err=>handleError(res,err));
+    .catch(err=>handleError(res,err));//Mikkel: a step in the right direction, bravo!!
 };
+
+
 
 
 exports.customers_create_customer = (req, res, next) => {
@@ -60,6 +72,7 @@ exports.customers_update_customerById = (req, res, next) => {
     .catch(err=>handleError(res,err));
 };
 
+//good!!
 function getCustomerFromRequest(req) {
   return new Customer({
     _id: new mongoose.Types.ObjectId(),
@@ -81,6 +94,7 @@ function handleGetCustByNameFromDb(res, req) {
   };
 }
 
+//Mikkel: good
 function handleError(res,err) {
   //return err => {
     console.log(err);
