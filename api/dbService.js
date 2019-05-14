@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Customer = require('../models/customer');
 const User = require('../models/user');
+//real good!
 
 function dbConnect() {
     return mongoose.connect('mongodb+srv://restdbUsername:' + process.env.DB_PASS + '@cluster0-fnckg.mongodb.net/test?retryWrites=true', { useNewUrlParser: true });
